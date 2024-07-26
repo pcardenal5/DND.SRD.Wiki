@@ -3,11 +3,11 @@ class Spell():
     def __init__(self) -> None:
         pass
 
-    def read(self, fileName : str ) -> list[str]:
+    def read(self, fileName : str ) -> dict[str,str]:
         with open(fileName, 'r') as inputFile:
             spellLines = inputFile.readlines()
         # Remove empty lines and \n characters
-        return [re.sub(r"\*\*[\w\s]+?:\*\*\s*", '', line.replace('\n', '')) for line in spellLines if line != '\n']
+        return self.parse([re.sub(r"\*\*[\w\s]+?:\*\*\s*", '', line.replace('\n', '')) for line in spellLines if line != '\n'])
 
     def parse(self, spellLines : list[str]) -> dict[str,str]:
         spellDict = {}
@@ -29,14 +29,15 @@ class Spell():
 
     @staticmethod
     def cleanName(spellName: str) -> str:
-        return re.sub(r'^#+\s', '', spellName)
+        return re.sub(r'[^\w]', '', spellName)
     
 
     @staticmethod
     def cleanLevel(spellLevel: str) -> tuple[str, str]:
-        levelRegex = re.compile(r'\*(\d)\w\w-level\s([\w]+)\*$').search(spellLevel)
+        levelRegex = re.compile(r'\*(\d)\w\w-level\s([\w]+)').search(spellLevel)
+        isRutual = spellLevel.endswith('ritual)*')
         if levelRegex:
-            return levelRegex.group(1), levelRegex.group(2).capitalize()
+            return levelRegex.group(1), (levelRegex.group(2) + isRutual*'(ritual)').capitalize()
         
         cantipRegex = re.compile(r'\*([\w]+)\scantrip\*$').search(spellLevel)
         if cantipRegex:
@@ -47,4 +48,3 @@ if __name__ == '__main__':
     s = Spell()
     spelllines = s.read('/data/DND.SRD.Wiki/Spells/Acid Arrow.md')
     print(spelllines)
-    print(s.parse(spelllines))
