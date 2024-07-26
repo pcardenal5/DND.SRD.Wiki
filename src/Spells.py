@@ -17,12 +17,15 @@ class Spell():
         spellDict['Range'] = spellLines[3]
         spellDict['Components'] = spellLines[4]
         spellDict['Duration'] = spellLines[5]
-        spellDict['Description'] = spellLines[6]
-        try:
-            spellDict['Higher'] = spellLines[7]
-        except:
+
+        if spellLines[-1].startswith('***At Higher Levels***'):
+            spellDict['Description'] = '\n'.join(spellLines[6:-1])
+            spellDict['Higher'] = spellLines[-1].replace('***At Higher Levels***. ', '')
+        else:
+            spellDict['Description'] = '\n'.join(spellLines[6:])
             spellDict['Higher'] = ''
         return spellDict
+
 
     @staticmethod
     def cleanName(spellName: str) -> str:
@@ -42,6 +45,6 @@ class Spell():
 
 if __name__ == '__main__':
     s = Spell()
-    spelllines = s.read('/data/DND.SRD.Wiki/Spells/Guidance.md')
+    spelllines = s.read('/data/DND.SRD.Wiki/Spells/Acid Arrow.md')
     print(spelllines)
     print(s.parse(spelllines))
