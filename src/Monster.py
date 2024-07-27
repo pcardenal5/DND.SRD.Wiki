@@ -52,7 +52,7 @@ class Monster():
             if i == '###### Actions':
                 break
             index += 1
-        self.Properties = self.lines[0:index]
+        self.Properties = self.lines[6:index]
         self.Actions = self.lines[index+1:]
 
 
@@ -93,7 +93,7 @@ class Monster():
         for stat in statDict.keys():
             saveValue = re.search(stat.capitalize() + r' [\+-](\d+)', saves)
             if saveValue:
-                statDict[stat]['Save'] = saveValue.group(0)
+                statDict[stat]['Save'] = saveValue.group(1)
             else:
                 statDict[stat]['Save'] = statDict[stat]['Modifier']
 
