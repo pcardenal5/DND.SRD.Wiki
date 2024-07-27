@@ -22,14 +22,14 @@ class Spell():
             spellDict['Description'] = '\n'.join(spellLines[6:-1])
             spellDict['Higher'] = spellLines[-1].replace('***At Higher Levels***. ', '')
         else:
-            spellDict['Description'] = '\n'.join(spellLines[6:])
+            spellDict['Description'] = '\n\n'.join(spellLines[6:])
             spellDict['Higher'] = ''
         return spellDict
 
 
     @staticmethod
     def cleanName(spellName: str) -> str:
-        return re.sub(r'[^\w]', '', spellName)
+        return re.sub(r'[^\w\s]', '', spellName.strip())
     
 
     @staticmethod
