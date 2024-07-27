@@ -4,45 +4,61 @@ class Monster():
     def __init__(self, fileName: str) -> None:
         self.fileName = fileName
         self.read()
-        self.spellDict = self.__dict__()
 
-    def __dict__(self)-> dict[str,str]:
-        return {'' : ''}
+    def __dict__(self)-> dict:
+        return {
+            'Name' : self.Name,
+            'Class' : self.Class,
+            'Challenge' : self.Challenge,
+            'AC' : self.AC,
+            'HP' : self.HP,
+            'Speed' : self.Speed,
+            'Stats' : self.Stats,
+            'DamageResistances' : self.DamageResistances,
+            'DamageImmunities' : self.DamageImmunities,
+            'ConditionImmunities' : self.ConditionImmunities,
+            'Senses' : self.Senses,
+            'Languages' : self.Languages,
+            'Properties' : self.Properties,
+            'Actions' : self.Actions
+        }
 
     def read(self) -> None:
         with open(self.fileName, 'r') as inputFile:
-            monsterLines = inputFile.readlines()
+            self.lines = inputFile.readlines()
         # Remove empty lines and \n characters
-        self.parse([re.sub(r"\*\*[\w\s]+?:\*\*\s*", '', line.replace('\n', '')) for line in monsterLines if line != '\n'])
+        self.lines = [re.sub(r"\*\*[\w\s]+?:\*\*\s*", '', line.replace('\n', '')) for line in self.lines if line != '\n']
+        self.parseLines()
 
-    def parse(self, monsterLines: list[str]) -> None:
-        self.Name = monsterLines[0]
-        self.Class = monsterLines[1]
-        self.AC = monsterLines[2]
-        self.HP = monsterLines[3]
-        self.Speed = monsterLines[4]
-        self.Stats = self.parseStats(monsterLines[7], monsterLines[8])
-        rest = monsterLines[9:]
-        self.DamageResistances, rest = self.findStringElement('**Damage Resistances**', rest)
-        self.DamageImmunities, rest = self.findStringElement('**Damage Immunities**', rest)
-        self.ConditionImmunities, rest = self.findStringElement('**Condition Immunities**', rest)
-        self.Senses, rest = self.findStringElement('**Senses**', rest)
-        self.Languages, rest = self.findStringElement('**Languages**', rest)
-        self.Challenge, rest = self.findStringElement('**Challenge**', rest)
-        
+    def parseLines(self) -> None:
+        self.Name = re.sub(r'[^\w\s]', '', self.lines[0]).strip()
+        self.Class = self.lines[1]
+        self.Stats = self.parseStats(self.lines[7], self.lines[8])
+
+        self.AC = self.findStringElement('**Armor Class**')
+        self.HP = self.findStringElement('**Hit Points**')
+        self.Speed = self.findStringElement('**Speed**')
+        self.DamageResistances = self.findStringElement('**Damage Resistances**')
+        self.DamageImmunities = self.findStringElement('**Damage Immunities**')
+        self.ConditionImmunities = self.findStringElement('**Condition Immunities**')
+        self.Skills = self.findStringElement('**Skills**')
+        self.Senses = self.findStringElement('**Senses**')
+        self.Languages = self.findStringElement('**Languages**')
+        self.Challenge = self.findStringElement('**Challenge**')
+
         # Detect Action section
         index = 0
-        for i in rest:
+        for i in self.lines:
             if i == '###### Actions':
                 break
             index += 1
-        self.Properties = rest[0:index]
-        self.Actions = rest[index+1:]
+        self.Properties = self.lines[0:index]
+        self.Actions = self.lines[index+1:]
 
-    @staticmethod
-    def parseStats(statTable : str, saves : str) -> dict:
+
+    def parseStats(self, statTable : str, saves : str) -> dict:
         statDict = {}
-        statsGroup = [match for match in re.finditer(r'(\d+) \(([-\+]\d)\)', statTable)]
+        statsGroup = [match for match in re.finditer(r'(\d+) \(([-\+]\d+)\)', statTable)]
         statDict['STR'] = {
             'Value' : statsGroup[0].group(1),
             'Modifier': statsGroup[0].group(2)
@@ -83,13 +99,13 @@ class Monster():
 
         return statDict
 
-    def findStringElement(self, searchString: str, searchList : list[str]) -> tuple[str, list[str]]:
-        for element in searchList:
+    def findStringElement(self, searchString: str) -> str:
+        for element in self.lines:
             if element.startswith(searchString):
-                searchList.remove(element)
-                return element.replace(searchString, '').strip().capitalize(), searchList
-                
-        return '', searchList
+                self.lines.remove(element)
+                return element.replace(searchString, '').strip().capitalize()
+
+        return ''
 
 if __name__ == '__main__':
     Monster('/data/DND.SRD.Wiki/Monsters/Aboleth.md')
