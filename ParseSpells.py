@@ -7,25 +7,26 @@ spellDir = './Spells'
 spellList = [spell for spell in os.listdir(spellDir) if not spell.startswith('#')]
 
 spellDict = {}
-sp = Spell()
 for spell in spellList:
+    sp = Spell(os.path.join(spellDir, spell))
+    spellDict[sp.Name] = sp.__dict__()
+    outputFileName = os.path.join(os.path.expanduser('~/ObsiDnD/PlayersHandbook/'), 'SpellClean', sp.Name + '.md')
+    spellText = f'''# {sp.Name}
 
-    spell = sp.read(os.path.join(spellDir, spell))
-    spellDict[spell['Name']] = spell
-    outputFileName = os.path.join(os.path.expanduser('~/ObsiDnD/PlayersHandbook/'), 'SpellClean', spell["Name"] + '.md')
-    spellText = f'''_Lv{spell['Level']} {spell['School']}_
+_Lv{sp.Level} {sp.School}_
 
 | Casting Time | Range | Components | Duration |
 | :----------: | :---: | :--------: | :------: |
-| {spell['Time']} | {spell['Range']} | {spell['Components']} | {spell['Duration']} |
+| {sp.Time} | {sp.Range} | {sp.Components} | {sp.Duration} |
 
-{spell['Description']}
+{sp.Description}
 '''
-    if spell['Higher'] != '':
+
+    if sp.Higher != '':
         spellText = spellText + f'''
 ## At higher levels
 
-{spell['Higher']}
+{sp.Higher}
 '''        
 
     with open(outputFileName, 'w') as outputFile:
