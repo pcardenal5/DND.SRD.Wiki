@@ -19,17 +19,20 @@ for monster in monsterList:
     outputFileName = os.path.join(os.path.expanduser('~/ObsiDnD/PlayersHandbook/'), 'MonsterClean', mon.Name + '.md')
     immunities = ''
     if mon.DamageResistances != '':
-        immunities +=f'''**Damage Resistances:**
+        immunities +=f'''
+**Damage Resistances:**
 
 - {mon.DamageResistances}
 '''
     if mon.DamageImmunities != '':
-        immunities +=f'''**Damage Immunities:**
+        immunities +=f'''
+**Damage Immunities:**
 
 - {mon.DamageImmunities}
 '''
     if mon.ConditionImmunities != '':
-        immunities +=f'''**Condition Immunities:**
+        immunities +=f'''
+**Condition Immunities:**
 
 - {mon.ConditionImmunities}
 '''
@@ -38,13 +41,10 @@ for monster in monsterList:
 
 *{mon.Class}*
 
-**CR:**
-- {mon.Challenge}
-
-
-**AC:** {mon.AC}
-**HP:** {mon.HP}
-**Speed:** {mon.Speed}
+**CR** {mon.Challenge}
+**AC** {mon.AC}
+**HP** {mon.HP}
+**Speed** {mon.Speed}
 
 ---
 
@@ -62,7 +62,6 @@ for monster in monsterList:
 - {mon.Skills}
 
 {immunities}
-
 **Senses:**
 
 - {mon.Senses}
@@ -73,15 +72,13 @@ for monster in monsterList:
 
 ## Abilities
 
-- {'\n\n- '.join(mon.Properties)}
-
+{mon.PropertiesText}
 ---
 
 ## Actions
 
-- {'\n\n- '.join(mon.Actions)}
-
-''').replace('- ###### Legendary Actions', '## Legendary Actions')
+{mon.ActionsText}
+''')
 
     with open(outputFileName, 'w') as outputFile:
         outputFile.write(monsterText)
