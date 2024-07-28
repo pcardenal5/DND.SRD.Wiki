@@ -34,7 +34,7 @@ class Monster():
         self.Name = re.sub(r'[^\w\s]', '', self.lines[0]).strip()
         self.Class = self.lines[1]
         self.Stats = self.parseStats(self.lines[7], self.lines[8])
-
+        self.findStringElement('**Saving Throws**')
         self.AC = self.findStringElement('**Armor Class**')
         self.HP = self.findStringElement('**Hit Points**')
         self.Speed = self.findStringElement('**Speed**')
@@ -52,9 +52,10 @@ class Monster():
             if i == '###### Actions':
                 break
             index += 1
-        self.Properties = self.lines[6:index]
+        self.Properties = self.lines[5:index]
+        self.parseProperties()
         self.Actions = self.lines[index+1:]
-
+        self.parseActions()
 
     def parseStats(self, statTable : str, saves : str) -> dict:
         statDict = {}
@@ -99,6 +100,7 @@ class Monster():
 
         return statDict
 
+
     def findStringElement(self, searchString: str) -> str:
         for element in self.lines:
             if element.startswith(searchString):
@@ -107,5 +109,24 @@ class Monster():
 
         return ''
 
+
+    def parseProperties(self) -> None:
+        self.PropertiesText = ''
+        for p in self.Properties:
+            p = re.sub(r'^\*{2,3}([\s\w/\(\)]+?)\*{2,3}\.?\s', r'### \1 \n\n', p)
+            self.PropertiesText += p + '\n\n'
+
+
+    def parseActions(self) -> None:
+        self.ActionsText = ''
+        for p in self.Actions:
+            if p.endswith('Legendary Actions'):
+                p = '## Legendary Actions'
+            p = re.sub(r'^\*{2,3}([\s\w/\(\)]+?)\*{2,3}\.?\s', r'### \1 \n\n', p)
+            self.ActionsText += p + '\n\n'
+
 if __name__ == '__main__':
-    Monster('/data/DND.SRD.Wiki/Monsters/Aboleth.md')
+    # mon = Monster('/data/DND.SRD.Wiki/Monsters/Acolyte (NPC).md')
+    # print(mon.PropertiesText)
+    mon = Monster('/data/DND.SRD.Wiki/Monsters/Aboleth.md')
+    print(mon.__dict__())
